@@ -21,11 +21,14 @@ import Switch from "@mui/material/Switch";
 import DeleteIcon from "@mui/icons-material/Delete";
 import FilterListIcon from "@mui/icons-material/FilterList";
 import { visuallyHidden } from "@mui/utils";
-import { rowsToRender } from "./seedDevices";
+import dataSeed from "./seedDevices";
 import { ThemeProvider } from "@emotion/react";
 import theme from "@/context/ThemeContext";
 import SearchBar from "@/common/searchbar/SearchBar";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import ModeEditIcon from "@mui/icons-material/ModeEdit";
+import StandardButton from "@/common/buttons/StandarButton";
 
 interface Data {
   id: number;
@@ -33,7 +36,12 @@ interface Data {
   serie: string;
   modelo: string;
   nombre: string;
+  registro: string;
+  riesgo: string;
   ubicacion: string;
+  activo_fijo: string;
+  estado: string;
+  observaciones: string;
 }
 
 export function createData(
@@ -42,7 +50,12 @@ export function createData(
   marca: string,
   modelo: string,
   serie: string,
-  ubicacion: string
+  registro: string,
+  riesgo: string,
+  ubicacion: string,
+  activo_fijo: string,
+  estado: string,
+  observaciones: string
 ): Data {
   return {
     id,
@@ -50,6 +63,11 @@ export function createData(
     marca,
     modelo,
     serie,
+    riesgo,
+    registro,
+    activo_fijo,
+    estado,
+    observaciones,
     ubicacion,
   };
 }
@@ -111,10 +129,40 @@ const headCells: readonly HeadCell[] = [
     label: "Serie",
   },
   {
+    id: "registro",
+    numeric: true,
+    disablePadding: false,
+    label: "Registro Invima",
+  },
+  {
+    id: "riesgo",
+    numeric: true,
+    disablePadding: false,
+    label: "Riesgo",
+  },
+  {
     id: "ubicacion",
     numeric: true,
     disablePadding: false,
     label: "Ubicación",
+  },
+  {
+    id: "activo_fijo",
+    numeric: true,
+    disablePadding: false,
+    label: "Activo Fijo",
+  },
+  {
+    id: "estado",
+    numeric: true,
+    disablePadding: false,
+    label: "Estado",
+  },
+  {
+    id: "observaciones",
+    numeric: true,
+    disablePadding: false,
+    label: "Observaciones",
   },
 ];
 
@@ -147,15 +195,8 @@ function EnhancedTableHead(props: EnhancedTableProps) {
   return (
     <TableHead>
       <TableRow>
-        <TableCell padding="checkbox">
-          <Checkbox
-            indeterminate={numSelected > 0 && numSelected < rowCount}
-            checked={rowCount > 0 && numSelected === rowCount}
-            onChange={onSelectAllClick}
-            inputProps={{
-              "aria-label": "select all",
-            }}
-          />
+        <TableCell padding="normal" align={"left"}>
+          <b>Editar</b>
         </TableCell>
         {headCells.map((headCell) => (
           <TableCell
@@ -224,7 +265,7 @@ function EnhancedTableToolbar(props: EnhancedTableToolbarProps) {
       ) : (
         <Typography
           sx={{ flex: "1 1 100%" }}
-          variant="h6"
+          variant="h4"
           id="tableTitle"
           component="div"
         >
@@ -253,8 +294,8 @@ export default function EnhancedTable() {
   const [selected, setSelected] = React.useState<readonly number[]>([]);
   const [page, setPage] = React.useState(0);
   const [dense, setDense] = React.useState(true);
-  const [rowsPerPage, setRowsPerPage] = React.useState(10);
-  const [rows, setRows] = React.useState<Data[]>([...rowsToRender]);
+  const [rowsPerPage, setRowsPerPage] = React.useState(25);
+  const [rows, setRows] = React.useState<Data[]>([...dataSeed]);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const { replace } = useRouter();
@@ -267,14 +308,14 @@ export default function EnhancedTable() {
       params.set("search", searchTerm);
 
       // Filter rows based on the search term
-      const filteredRows = rowsToRender.filter((row) =>
+      const filteredRows = dataSeed.filter((row) =>
         row.nombre.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setRows(filteredRows);
     } else {
       // If the search term is empty, reset the rows and remove the search param
       params.delete("search");
-      setRows([...rowsToRender]);
+      setRows([...dataSeed]);
     }
 
     // Update the URL
@@ -337,14 +378,6 @@ export default function EnhancedTable() {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
-  // const visibleRows = React.useMemo(
-  //   () =>
-  //     [...rows]
-  //       .sort(getComparator(order, orderBy))
-  //       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage),
-  //   [order, orderBy, page, rowsPerPage]
-  // );
-
   const visibleRows = React.useMemo(() => {
     // Sort and paginate the rows
     return [...rows]
@@ -365,9 +398,18 @@ export default function EnhancedTable() {
               bgcolor: alpha("#1e1e1e", 1),
             }}
           >
-            <SearchBar onSearch={handleSearch} />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+              <StandardButton
+                text="Crear Equipo"
+                disabled={false}
+                type="button"
+                href="/dashboard/equipo/crear"
+              />
+              <SearchBar onSearch={handleSearch} />
+            </Box>
+
             <TablePagination
-              rowsPerPageOptions={[5, 10, 25]}
+              rowsPerPageOptions={[10, 25, 50]}
               component="div"
               count={rows.length}
               rowsPerPage={rowsPerPage}
@@ -412,17 +454,17 @@ export default function EnhancedTable() {
 
               <TableBody>
                 {visibleRows.map((row, index) => {
-                  const isItemSelected = selected.includes(row.id);
+                  //const isItemSelected = selected.includes(row.id);
                   const labelId = `enhanced-table-checkbox-${index}`;
 
                   return (
                     <TableRow
-                      onClick={(event) => handleClick(event, row.id)}
+                      // onClick={(event) => handleClick(event, row.id)}
                       role="checkbox"
-                      aria-checked={isItemSelected}
+                      // aria-checked={isItemSelected}
                       tabIndex={-1}
                       key={row.id}
-                      selected={isItemSelected}
+                      // selected={isItemSelected}
                       sx={{
                         cursor: "pointer",
                         "&.Mui-selected": {
@@ -437,14 +479,27 @@ export default function EnhancedTable() {
                       }}
                     >
                       <TableCell padding="checkbox">
-                        <Checkbox
-                          color="primary"
-                          checked={isItemSelected}
-                          inputProps={{
-                            "aria-labelledby": labelId,
-                          }}
-                        />
+                        <Box component="span" sx={{ display: "flex" }}>
+                          <Link
+                            href="/dashboard/equipo/[id]/editar"
+                            as={`/dashboard/equipo/${row.id}/editar`}
+                            target="_blank"
+                            passHref
+                            legacyBehavior
+                          >
+                            <a
+                              style={{
+                                textDecoration: "none",
+                                color: "inherit",
+                                cursor: "pointer",
+                              }}
+                            >
+                              <ModeEditIcon />
+                            </a>
+                          </Link>
+                        </Box>
                       </TableCell>
+
                       <TableCell
                         component="th"
                         id={labelId}
@@ -456,7 +511,12 @@ export default function EnhancedTable() {
                       <TableCell align="left">{row.marca}</TableCell>
                       <TableCell align="left">{row.modelo}</TableCell>
                       <TableCell align="left">{row.serie}</TableCell>
+                      <TableCell align="left">{row.registro}</TableCell>
+                      <TableCell align="left">{row.riesgo}</TableCell>
                       <TableCell align="left">{row.ubicacion}</TableCell>
+                      <TableCell align="left">{row.activo_fijo}</TableCell>
+                      <TableCell align="left">{row.estado}</TableCell>
+                      <TableCell align="left">{row.observaciones}</TableCell>
                     </TableRow>
                   );
                 })}

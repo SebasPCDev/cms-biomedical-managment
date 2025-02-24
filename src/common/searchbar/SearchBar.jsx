@@ -21,6 +21,9 @@ const SearchBar = ({ onSearch }) => {
         "& .MuiInputBase-input": {
           color: "white", // Set font color to white
         },
+        "& .MuiInputBase-root": {
+          height: "2.5rem",
+        },
         "& .MuiOutlinedInput-root": {
           "& fieldset": {
             borderColor: "white", // Optional: Set border color to white
@@ -28,11 +31,14 @@ const SearchBar = ({ onSearch }) => {
           "&:hover fieldset": {
             borderColor: "white", // Optional: Set hover border color to white
           },
+          "&.Mui-focused fieldset": {
+            borderColor: "green", // Set focus ring color to blue (or any color you want)
+          },
         },
         "& .MuiInputLabel-root": {
           color: "white", // Optional: Set label color to white
         },
-        width: "45rem",
+        width: "20rem",
       }}
       placeholder="Search..."
       value={searchTerm}

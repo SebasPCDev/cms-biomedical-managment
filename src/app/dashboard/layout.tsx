@@ -1,7 +1,9 @@
 "use client";
 import HeaderComponent from "@/common/header/header";
 import SidebarComponent from "@/common/sidebar/sidebar";
+import { Box, CircularProgress } from "@mui/material";
 import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export default function DashboardLayout({
   children,

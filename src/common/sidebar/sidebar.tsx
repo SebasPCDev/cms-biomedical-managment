@@ -20,6 +20,7 @@ import {
 } from "@mui/icons-material";
 
 import { sidebarItems, SidebarItem } from "./sidebarItems";
+import Link from "next/link";
 
 export default function Sidebar() {
   const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
@@ -66,16 +67,18 @@ export default function Sidebar() {
                 <Collapse in={isSubmenuOpen} timeout="auto" unmountOnExit>
                   <List component="div" disablePadding>
                     {item.subItems.map((subItem, index) => (
-                      <ListItemButton
-                        key={`submenu_${index}`}
-                        sx={{ pl: 3, fontSize: "0.8rem" }}
-                      >
-                        <ListItemIcon>{subItem.icon}</ListItemIcon>
-                        <ListItemText
-                          primary={subItem.name}
-                          disableTypography
-                        />
-                      </ListItemButton>
+                      <Link href={subItem.route} key={subItem.name}>
+                        <ListItemButton
+                          key={`submenu_${index}`}
+                          sx={{ pl: 3, fontSize: "0.8rem" }}
+                        >
+                          <ListItemIcon>{subItem.icon}</ListItemIcon>
+                          <ListItemText
+                            primary={subItem.name}
+                            disableTypography
+                          />
+                        </ListItemButton>
+                      </Link>
                     ))}
                   </List>
                 </Collapse>
@@ -83,10 +86,12 @@ export default function Sidebar() {
             );
           } else {
             return (
-              <ListItemButton key={item.name}>
-                <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.name} disableTypography />
-              </ListItemButton>
+              <Link href={item.route} key={item.name}>
+                <ListItemButton key={item.name}>
+                  <ListItemIcon>{item.icon}</ListItemIcon>
+                  <ListItemText primary={item.name} disableTypography />
+                </ListItemButton>
+              </Link>
             );
           }
         })}

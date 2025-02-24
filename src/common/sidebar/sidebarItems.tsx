@@ -26,17 +26,17 @@ export const sidebarItems: SidebarItem[] = [
     subItems: [
       {
         name: "Inventario Equipos",
-        route: "/dashboard/equipos/inventario",
+        route: "/dashboard/inventario",
         icon: <InventoryIcon sx={{ color: "white", width: "1.2rem" }} />,
       },
       {
         name: "Hojas de Vida",
-        route: "/dashboard/equipos/hojasdevida",
+        route: "/dashboard/hojasdevida",
         icon: <DescriptionIcon sx={{ color: "white", width: "1.2rem" }} />,
       },
       {
         name: "Contratos Vigentes",
-        route: "/dashboard/equipos/contratos",
+        route: "/dashboard/contratos",
         icon: <LayersIcon sx={{ color: "white", width: "1.2rem" }} />,
       },
     ],
